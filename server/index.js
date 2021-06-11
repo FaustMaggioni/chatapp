@@ -4,10 +4,12 @@ const http = require('http');
 const router = require('./router')
 const cors = require('cors');
 const PORT = process.env.PORT || 8080
-
+const {addUser,removeUser,getUser,getUsersInRoom} = require('./users.js')
 const app = express()
 app.use(cors())
+
 let i = 0
+
 const server = http.createServer(app)
 const io = socketio(server, {
     cors: {
@@ -17,11 +19,27 @@ const io = socketio(server, {
       },
 })
 io.on('connect', (socket) => { //todo el codigo aca, manejando ese especifico socket q se conectó
-    console.log("new user: ",i++)
-
     socket.on('join', ({nombre,cuarto},callback) => {
-        console.log(nombre,cuarto)
-       
+        const {error,user} = addUser({id: socket.id, nombre, cuarto})
+        
+        if(error){
+            return callback(error)
+        }
+
+        socket.emit('message', {user: 'Admin', text:`${user.name} welcome to the room ${user.room}`})
+        socket.broadcast.to(user.room.emit('message', {user: 'admin', text: `${user.name} has joined the room`})) // envia un mensaje a todos menos al q lo emite
+        
+        socket.join(user.room)
+
+        callback()
+
+    })
+ // on recibe, emit emite xd
+    socket.on('sendMessage', (message,callback)=>{
+        const user = getUser(socket.id)
+        io.to(user.room).emit('message', {user: user.name, text: message})
+
+        callback()
     })
 
     socket.on('disconnect', () => {
