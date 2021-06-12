@@ -30,16 +30,19 @@ io.on('connect', (socket) => { //todo el codigo aca, manejando ese especifico so
         socket.join(user.room)
         console.log(user)
         socket.emit('message', {user: 'Admin', text:`${user.name} welcome to the room ${user.room}`})
-        socket.broadcast.to(user.room.emit('message', {user: 'admin', text: `${user.name} has joined the room`})) // envia un mensaje a todos menos al q lo emite
+        socket.broadcast.to(user.room).emit('message', {user: 'admin', text: `${user.name} has joined the room`}) // envia un mensaje a todos menos al q lo emite
         
         callback()
 
     })
  // on recibe, emit emite xd
     socket.on('sendMessage', (message,callback)=>{
-        const user = getUser(socket.id)
-        io.to(user.room).emit('message', {user: user.name, text: message})
 
+        console.log('sendingg',message)
+        const user = getUser(socket.id)
+        console.log('USER: ',user.room)
+        io.to(user.room).emit('message', {user: user.name, text: message})
+        console.log('io to')
         callback()
     })
 
