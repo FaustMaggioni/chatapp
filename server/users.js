@@ -3,16 +3,19 @@ const users = []
 const addUser = ({id, nombre, cuarto}) => {
     const name = nombre.trim().toLowerCase()
     const room = cuarto.trim().toLowerCase()
-
-    const existingUser = users.find(user => user.room === room && user.name === name)
-
+    console.log(name, room)
+    let existingUser = false
+    if(users.length > 0){
+    existingUser = users.find(user => user.room === room && user.name === name)
+}
     if(existingUser){
         return {error: 'Username is taken'}
     }
 
-    const user = {id, name, room}
+    const user = {id: id, name:name, room:room}
+    console.log(user)
     users.push(user)
-    return user
+    return {user}
 }
 
 const removeUser = (id) => {

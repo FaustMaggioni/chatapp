@@ -20,17 +20,18 @@ const io = socketio(server, {
 })
 io.on('connect', (socket) => { //todo el codigo aca, manejando ese especifico socket q se conectó
     socket.on('join', ({nombre,cuarto},callback) => {
+        console.log('join')
         const {error,user} = addUser({id: socket.id, nombre, cuarto})
-        
+        console.log(user)
         if(error){
+            console.log(error)
             return callback(error)
         }
-
+        socket.join(user.room)
+        console.log(user)
         socket.emit('message', {user: 'Admin', text:`${user.name} welcome to the room ${user.room}`})
         socket.broadcast.to(user.room.emit('message', {user: 'admin', text: `${user.name} has joined the room`})) // envia un mensaje a todos menos al q lo emite
         
-        socket.join(user.room)
-
         callback()
 
     })
